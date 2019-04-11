@@ -31,8 +31,16 @@ public class RuntimeMeshComponent : ModuleRules
                 "CoreUObject",
                 "Engine",
                 "RenderCore",
-                "ShaderCore",
                 "RHI",
             });
+
+        if (Target.Version.MinorVersion <= 21)
+        {
+            PrivateDependencyModuleNames.AddRange(
+                new string[]
+                {
+                    "ShaderCore",
+                });
+        }
     }
 }

@@ -33,7 +33,6 @@ public class RuntimeMeshComponentEditor : ModuleRules
                 "Slate",
                 "SlateCore",
                 "RenderCore",
-                "ShaderCore",
                 "RHI",
                 "UnrealEd",
                 "LevelEditor",
@@ -47,5 +46,14 @@ public class RuntimeMeshComponentEditor : ModuleRules
 
                 "RuntimeMeshComponent",
             });
+
+        if (Target.Version.MinorVersion <= 21)
+        {
+            PrivateDependencyModuleNames.AddRange(
+                new string[]
+                {
+                    "ShaderCore",
+                });
+        }
     }
 }
