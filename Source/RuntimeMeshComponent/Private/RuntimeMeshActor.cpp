@@ -4,6 +4,9 @@
 #include "RuntimeMeshComponent.h"
 #include "RuntimeMeshComponentPlugin.h"
 
+#if ENGINE_MINOR_VERSION >= 22
+#include "Engine/CollisionProfile.h"
+#endif
 
 ARuntimeMeshActor::ARuntimeMeshActor(const FObjectInitializer& ObjectInitializer)
 	: Super(ObjectInitializer)

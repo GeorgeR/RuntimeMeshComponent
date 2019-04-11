@@ -9,6 +9,10 @@
 #include "RuntimeMeshComponentProxy.h"
 #include "RuntimeMeshLegacySerialization.h"
 
+#if ENGINE_MINOR_VERSION >= 22
+#include "NavigationSystem.h"
+#endif
+
 DECLARE_CYCLE_STAT(TEXT("RMC - New Collision Data Recieved"), STAT_RuntimeMeshComponent_NewCollisionMeshReceived, STATGROUP_RuntimeMesh);
 
 URuntimeMeshComponent::URuntimeMeshComponent(const FObjectInitializer& ObjectInitializer)
@@ -255,7 +259,13 @@ void URuntimeMeshComponent::UpdateCollision(bool bForceCookNow)
 {
 	//SCOPE_CYCLE_COUNTER(STAT_RuntimeMesh_CollisionUpdate);
 	check(IsInGameThread());
+
+#if ENGINE_MINOR_VERSION < 22
 	check(GetRuntimeMesh());
+#else
+	if (!GetRuntimeMesh())
+		return;
+#endif
 
 	UWorld* World = GetWorld();
 	const bool bShouldCookAsync = !bForceCookNow && World && World->IsGameWorld() && GetRuntimeMesh()->bUseAsyncCooking;
