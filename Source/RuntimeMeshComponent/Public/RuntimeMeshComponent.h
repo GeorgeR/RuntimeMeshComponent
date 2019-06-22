@@ -7,14 +7,16 @@
 #include "RuntimeMeshSection.h"
 #include "RuntimeMesh.h"
 
+#include "Interfaces/Interface_CollisionDataProvider.h"
+
 #include "RuntimeMeshComponent.generated.h"
 
 /**
 *	Component that allows you to specify custom triangle mesh geometry for rendering and collision.
 */
 UCLASS(HideCategories = (Object, LOD), Meta = (BlueprintSpawnableComponent))
-class RUNTIMEMESHCOMPONENT_API URuntimeMeshComponent 
-    : public UMeshComponent, 
+class RUNTIMEMESHCOMPONENT_API URuntimeMeshComponent final
+: public UMeshComponent, 
     public IInterface_CollisionDataProvider
 {
 	GENERATED_BODY()
@@ -26,7 +28,7 @@ private:
 	void EnsureHasRuntimeMesh();
 
 public:
-	URuntimeMeshComponent(const FObjectInitializer& ObjectInitializer);
+    explicit URuntimeMeshComponent(const FObjectInitializer& ObjectInitializer);
 
 	/** Clears the geometry for ALL collision only sections */
 	UFUNCTION(BlueprintCallable, Category = "Components|RuntimeMesh")
@@ -327,58 +329,6 @@ public:
 		ESectionUpdateFlags UpdateFlags = ESectionUpdateFlags::None)
 	{
 		GetOrCreateRuntimeMesh()->UpdateMeshSectionTripleBuffer(SectionId, Vertices0, Vertices1, Vertices2, Triangles, BoundingBox, UpdateFlags);
-	}
-
-	/** DEPRECATED! Use UpdateMeshSectionDualBuffer() instead.  Updates the dual buffer mesh section */
-	template<typename TVertexType>
-	DEPRECATED(3.0, "UpdateMeshSection for dual buffer sections deprecated. Please use UpdateMeshSectionDualBuffer instead.")
-	void UpdateMeshSection(
-		int32 SectionIndex,
-		TArray<FVector>& VertexPositions,
-		TArray<TVertexType>& VertexData,
-		ESectionUpdateFlags UpdateFlags = ESectionUpdateFlags::None)
-	{
-		UpdateMeshSectionDualBuffer(SectionIndex, VertexPositions, VertexData, UpdateFlags);
-	}
-
-	/** DEPRECATED! Use UpdateMeshSectionDualBuffer() instead.  Updates the dual buffer mesh section */
-	template<typename TVertexType>
-	DEPRECATED(3.0, "UpdateMeshSection for dual buffer sections deprecated. Please use UpdateMeshSectionDualBuffer instead.")
-	void UpdateMeshSection(
-		int32 SectionIndex,
-		TArray<FVector>& VertexPositions,
-		TArray<TVertexType>& VertexData,
-		const FBox& BoundingBox,
-		ESectionUpdateFlags UpdateFlags = ESectionUpdateFlags::None)
-	{
-		UpdateMeshSectionDualBuffer(SectionIndex, VertexPositions, VertexData, BoundingBox, UpdateFlags);
-	}
-
-	/** DEPRECATED! Use UpdateMeshSectionDualBuffer() instead.  Updates the dual buffer mesh section */
-	template<typename TVertexType>
-	DEPRECATED(3.0, "UpdateMeshSection for dual buffer sections deprecated. Please use UpdateMeshSectionDualBuffer instead.")
-	void UpdateMeshSection(
-		int32 SectionIndex,
-		TArray<FVector>& VertexPositions,
-		TArray<TVertexType>& VertexData,
-		TArray<int32>& Triangles,
-		ESectionUpdateFlags UpdateFlags = ESectionUpdateFlags::None)
-	{
-		UpdateMeshSectionDualBuffer(SectionIndex, VertexPositions, VertexData, Triangles, UpdateFlags);
-	}
-
-	/** DEPRECATED! Use UpdateMeshSectionDualBuffer() instead.  Updates the dual buffer mesh section */
-	template<typename TVertexType>
-	DEPRECATED(3.0, "UpdateMeshSection for dual buffer sections deprecated. Please use UpdateMeshSectionDualBuffer instead.")
-	void UpdateMeshSection(
-		int32 SectionIndex,
-		TArray<FVector>& VertexPositions,
-		TArray<TVertexType>& VertexData,
-		TArray<int32>& Triangles,
-		const FBox& BoundingBox,
-		ESectionUpdateFlags UpdateFlags = ESectionUpdateFlags::None)
-	{
-		UpdateMeshSectionDualBuffer(SectionIndex, VertexPositions, VertexData, Triangles, BoundingBox, UpdateFlags);
 	}
 
 	template<typename TVertexType>
@@ -890,7 +840,6 @@ public:
 		GetOrCreateRuntimeMesh()->SetCollisionBoxes(NewBoxes);
 	}
 
-	
 	UFUNCTION(BlueprintCallable, Category = "Components|RuntimeMesh")
 	int32 AddCollisionSphere(const FRuntimeMeshCollisionSphere& NewSphere)
 	{
@@ -992,6 +941,10 @@ private:
 	class UBodySetup* GetBodySetup() override;
 
 public:
+	// HORU: returns true if any async collision cooking is pending.
+	UFUNCTION(BlueprintCallable)
+	bool IsAsyncCollisionCookingPending() const;
+
 	UFUNCTION(BlueprintCallable, Category = "Components|RuntimeMesh")
 	int32 GetSectionIdFromCollisionFaceIndex(int32 FaceIndex) const;
 
@@ -1002,7 +955,7 @@ public:
 	int32 GetNumMaterials() const override;
 	void GetUsedMaterials(TArray<UMaterialInterface*>& OutMaterials, bool bGetDebugMaterials = false) const override;
 	UMaterialInterface* GetMaterial(int32 ElementIndex) const override;
-	virtual UMaterialInterface* GetOverrideMaterial(int32 ElementIndex) const;
+	UMaterialInterface* GetOverrideMaterial(int32 ElementIndex) const;
 	//~ End UMeshComponent Interface.
 
 private:

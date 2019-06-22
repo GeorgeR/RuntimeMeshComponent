@@ -3,6 +3,8 @@
 #include "RuntimeMeshActor.h"
 #include "RuntimeMeshComponent.h"
 #include "RuntimeMeshComponentPlugin.h"
+#include "Engine/CollisionProfile.h"
+
 
 #if ENGINE_MINOR_VERSION >= 22
 #include "Engine/CollisionProfile.h"

@@ -1,6 +1,7 @@
 // Copyright 2016-2018 Chris Conway (Koderz). All Rights Reserved.
 
 using UnrealBuildTool;
+using System.IO;
 
 public class RuntimeMeshComponentEditor : ModuleRules
 {
@@ -22,9 +23,13 @@ public class RuntimeMeshComponentEditor : ModuleRules
         }
 
         PublicDependencyModuleNames.AddRange(
-            new string[] {
-                "Core",
+            new string[]
+            {
+                "Core"
             });
+
+		PrivateIncludePaths.AddRange(new string[] { Path.Combine(ModuleDirectory, "Private") });
+		PublicIncludePaths.AddRange(new string[] { Path.Combine(ModuleDirectory, "Public") });
 
         PrivateDependencyModuleNames.AddRange(
             new string[] {
@@ -53,6 +58,15 @@ public class RuntimeMeshComponentEditor : ModuleRules
                 new string[]
                 {
                     "ShaderCore",
+                });
+        }
+
+        if (Target.Version.MinorVersion > 20)
+        {
+            PrivateDependencyModuleNames.AddRange(
+                new string[]
+                {
+                    "NavigationSystem"
                 });
         }
     }

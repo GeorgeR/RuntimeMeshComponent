@@ -1,8 +1,10 @@
 // Copyright 2016-2018 Chris Conway (Koderz). All Rights Reserved.
 
 #include "RuntimeMeshComponent.h"
-#include "RuntimeMeshComponentPlugin.h"
+
 #include "PhysicsEngine/BodySetup.h"
+
+#include "RuntimeMeshComponentPlugin.h"
 #include "RuntimeMeshCore.h"
 #include "RuntimeMeshUpdateCommands.h"
 #include "RuntimeMesh.h"
@@ -11,6 +13,8 @@
 
 #if ENGINE_MINOR_VERSION >= 22
 #include "NavigationSystem.h"
+#else
+#include "AI/Navigation/NavigationSystem.h"
 #endif
 
 DECLARE_CYCLE_STAT(TEXT("RMC - New Collision Data Recieved"), STAT_RuntimeMeshComponent_NewCollisionMeshReceived, STATGROUP_RuntimeMesh);
@@ -62,11 +66,10 @@ void URuntimeMeshComponent::NewCollisionMeshReceived()
  	if (UNavigationSystem::ShouldUpdateNavOctreeOnComponentChange() && IsRegistered())
  	{
  		UWorld* MyWorld = GetWorld();
- 
- 		if (MyWorld != nullptr && MyWorld->GetNavigationSystem() != nullptr &&
- 			(MyWorld->GetNavigationSystem()->ShouldAllowClientSideNavigation() || !MyWorld->IsNetMode(ENetMode::NM_Client)))
+		if (MyWorld != nullptr && MyWorld->GetNavigationSystem() != nullptr &&
+			(MyWorld->GetNavigationSystem()->ShouldAllowClientSideNavigation() || !MyWorld->IsNetMode(ENetMode::NM_Client)))
  		{
- 			UNavigationSystem::UpdateComponentInNavOctree(*this);
+			UNavigationSystem::UpdateComponentInNavOctree(*this);
  		}
  	}
 #endif
@@ -266,6 +269,9 @@ void URuntimeMeshComponent::UpdateCollision(bool bForceCookNow)
 	if (!GetRuntimeMesh())
 		return;
 #endif
+	// HORU: workaround for a nullpointer
+	if (!GetRuntimeMesh())
+		return;
 
 	UWorld* World = GetWorld();
 	const bool bShouldCookAsync = !bForceCookNow && World && World->IsGameWorld() && GetRuntimeMesh()->bUseAsyncCooking;
@@ -302,3 +308,8 @@ void URuntimeMeshComponent::UpdateCollision(bool bForceCookNow)
 	}
 }
 #endif
+
+bool URuntimeMeshComponent::IsAsyncCollisionCookingPending() const
+{
+	return AsyncBodySetupQueue.Num() != 0;
+}
